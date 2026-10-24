@@ -163,6 +163,13 @@ Rules for the layout:
 - Record decisions in the right layer: design intent → `doc/GDD.md`,
   technical contracts → `spec/*.md` (start minimal, grow with the code —
   see `spec/README.md` for spec rules and the index).
+- **Process baseline — `paper harness` (R1–R5):** declare `src/` tasks in
+  `WORK.md` (`[~]` → `[x]` + commit ref); write code for a spec only once
+  its status ≥ `agreed`; re-read `TA:` comments before editing tagged
+  files; close tasks only with `npm run harness` green. Method:
+  `doc/omt-ts-methodology.md` (OMT++ adaptation) · contract:
+  `spec/meta-harness.md` (simplicity-first: plugin gates only on measured
+  triggers).
 - Preserve the game's *identity*: purple player craft over a low-poly ocean,
   shield-bubble dome objectives, chunky retro score digits, chain-kill score
   surges.
