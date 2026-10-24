@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { RunModel, type RunSink } from '../../src/game/run';
-import type { BoomEvent } from '../../src/game/events';
+import { RunModel } from '../../src/game/run';
+import type { BoomEvent, RunSink } from '../../src/game/events';
 
 /**
  * Recording sink + injected clock: the run sim is pure — same seed +
@@ -236,7 +236,7 @@ describe('RunModel — lives & lifecycle (spec/scoring.md lives rows)', () => {
   });
 
   it('update() does nothing before start() and nothing after game over', () => {
-    const { sink, rec } = recordingSink();
+    const { sink } = recordingSink();
     const idle = new RunModel(sink, { seed: 5, threats: false });
     idle.update(1);
     expect(idle.state).toBe('idle');

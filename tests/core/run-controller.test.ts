@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { EventBus, type GameEvents } from '../../src/core/bus';
+import { EventBus } from '../../src/core/bus';
 import { InputMap } from '../../src/core/input';
-import { GameController } from '../../src/core/run-controller';
-import { RunModel, type RunSink } from '../../src/game/run';
+import { GameController, type GameEvents } from '../../src/core/run-controller';
+import { RunModel } from '../../src/game/run';
+import type { RunSink } from '../../src/game/events';
 
 /**
  * State-machine walkthrough (methodology §9 triads): menu → playing →

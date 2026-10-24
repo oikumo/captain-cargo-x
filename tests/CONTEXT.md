@@ -6,7 +6,8 @@ partners (methodology §12), never real rAF / timers / wall time.
 
 | Folder | Mirrors | Covers today |
 |---|---|---|
-| `core/` | `src/core` | `GameLoop`: cadence, clamped deltas, stop/restart |
-| `utils/` | `src/utils` | `clampDelta` bounds |
+| `core/` | `src/core` | `GameLoop` cadence/clamps; `EventBus` pub/sub; `InputMap` holds+edges; `GameController` state machine |
+| `game/` | `src/game` | `Scoring` chain rows; `RunModel` flight/spawns/collisions/dome/lives/determinism |
+| `utils/` | `src/utils` | `clampDelta`, `clamp/lerp/damp`, seeded RNG |
 
 New `src/<x>/` ⇒ new `tests/<x>/` + a row here, in the same change.
