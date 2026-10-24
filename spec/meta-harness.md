@@ -1,9 +1,10 @@
 # Spec — META HARNESS implementation (`paper harness` for Captain Cargo X)
 
-Status: **draft (v1.1)** — the paper layer is active now (docs only); the
+Status: **draft (v1.1)** — the paper layer is active now (T0 shipped); the
 effective layer lands with the game scaffold. This file is **self-contained**:
 the agentx reference + the deep analysis live in git-ignored
-`.sandbox/` (read-only); nothing below depends on them.
+`.sandbox/` (execution workspace — bulk untracked, entry map
+`.sandbox/CONTEXT.md` tracked); nothing below depends on them.
 
 ## Changelog
 
@@ -11,6 +12,7 @@ the agentx reference + the deep analysis live in git-ignored
 |---|---|
 | 2026-10-24 | Initial contract: 5 rules + sprint plan S1–S5. |
 | 2026-10-24 | **v1.1 — simplicity rebalance**: git-native audit, ONE check script, grow-on-trigger gates. S3/S4/S5 collapsed into incident-driven growth (original plan kept in git history). |
+| 2026-10-24 | **T0 executed**: `.sandbox/CONTEXT.md` tracked as the sandbox entry map (gitignore exception); root `WORK.md` seeded — AC1 meets its checklist. |
 
 ## 1. Objective — effective at minimum machinery
 
@@ -93,7 +95,7 @@ ceremony, god compiler, AKB consult gate — reopen mirrors the analysis
 
 ## 6. Acceptance criteria
 
-- [ ] **AC1 (now):** AGENTS.md §7 carries the R1–R5 summary + methodology
+- [x] **AC1 (now):** AGENTS.md §7 carries the R1–R5 summary + methodology
   pointer; `WORK.md` exists with its first pending task (`scaffold
   vertical slice`); this spec's budgets are the recorded numbers.
 - [ ] **AC2 (scaffold):** `npm run harness` green on a clean tree; three
