@@ -11,7 +11,8 @@
  *                         D6 wall-clock-in-model
  *     (D2 view-mutates-state is not statically greppable — review-time, §6)
  *   4. TA digest        — count + locations of persistent gotcha tags (R3)
- * Keep the mirrored values in sync with those two spec files.
+ *   5. context (R6)     — every tracked folder carries CONTEXT.md ≤ 2 KiB
+ * Keep the mirrored values in sync with their spec parents.
  *
  * TA: runs via node type-stripping — enums / parameter-properties are NOT
  *     erasable syntax; keep plain fields in this script only.
@@ -62,6 +63,38 @@ for (const [file, cap] of budgeted) {
   }
 }
 if (budgetRead === budgeted.length) ok(`budgets checked (${budgeted.length} capped files)`);
+
+// -- 2b. context (R6) — per-folder CONTEXT.md nav maps -------------------------
+// Every folder holding git-tracked files carries a CONTEXT.md ≤ 2 KiB.
+// Presence follows the git index: build/cache/output folders (dist/,
+// node_modules, …) stay invisible — they hold no tracked files. `.sandbox/`
+// is the self-policed membrane and carries its own cap in its own map.
+const gitLs = spawnSync('git', ['ls-files'], { cwd: ROOT, encoding: 'utf8' });
+if (gitLs.status !== 0) fail('context: git ls-files failed — presence not checked');
+else {
+  const folders = new Set<string>();
+  for (const rel of gitLs.stdout.split('\n')) {
+    if (!rel) continue;
+    let dir = '';
+    for (const part of rel.split('/').slice(0, -1)) {
+      dir = dir ? `${dir}/${part}` : part;
+      if (!dir.startsWith('.sandbox')) folders.add(dir);
+    }
+  }
+  let maps = 0;
+  for (const dir of [...folders].sort()) {
+    const map = `${dir}/CONTEXT.md`;
+    try {
+      const size = readFileSync(join(ROOT, map)).length;
+      if (size > 2048)
+        fail(`context: ${map} is ${size} B > cap 2048 B (spec/meta-harness.md §2 R6)`);
+      else maps++;
+    } catch {
+      fail(`context: ${map} missing — land it with the folder (AGENTS.md §Navigation, R6)`);
+    }
+  }
+  if (maps > 0) ok(`context maps present + within budget (${maps} folders)`);
+}
 
 // -- 3. boundaries + detectors (doc/omt-ts-methodology.md §5 + §16) ------------
 function walk(rel: string, out: string[] = []): string[] {

@@ -1,6 +1,6 @@
 # Spec — META HARNESS implementation (`paper harness` for Captain Cargo X)
 
-Status: **implemented (v1.1)** — paper layer + game scaffold live; the check
+Status: **implemented (v1.2)** — paper layer + game scaffold live; the check
 script is `scripts/acyx/harness.ts` (`npm run harness`, green). This file is
 **self-contained**: the agentx reference + the deep analysis live in git-ignored
 `.sandbox/` (execution workspace — bulk untracked, entry map
@@ -15,6 +15,7 @@ script is `scripts/acyx/harness.ts` (`npm run harness`, green). This file is
 | 2026-10-24 | **T0 executed**: `.sandbox/CONTEXT.md` tracked as the sandbox entry map (gitignore exception); root `WORK.md` seeded — AC1 meets its checklist. |
 | 2026-10-24 | **Scaffold commit**: status `draft → agreed` (user in the loop); §3 lands as `scripts/acyx/harness.ts` wired to `npm run harness`; AC2 proven in-session (three seeded violations, each exit 1). |
 | 2026-10-24 | Closure: AC2 ✓ and AC3 ✓ ticked; status `agreed → implemented`. |
+| 2026-10-24 | **v1.2 — R6 nav layer**: per-folder `CONTEXT.md` ≤ 2 KiB; read-before-enter (AGENTS.md); harness context check. |
 
 ## 1. Objective — effective at minimum machinery
 
@@ -28,13 +29,13 @@ simpler mechanism that prevents this failure in THIS repository?*
 |---|---|---|---|
 | Process audit | JSONL ledger + expiry windows + tools | `WORK.md` task lines + git commits | grep-able by human & agent, survives compaction, zero runtime |
 | Phase gating | `omt_phase` gate chain | spec-status gate + task-tag commit format (R1/R2) | same failure caught (code ahead of design) at review time |
-| Token budgets | compile-enforced, 11 surfaces | 2 enforceable caps (AGENTS.md, specs each file) + script check | bloat lives almost only there; other files free-form |
+| Token budgets | compile-enforced, 11 surfaces | budget-capped agent-facing files + script check | bloat lives only on capped files; rest free-form |
 | Layer policy | MVC++ linter + after-gate plugin | policy in methodology guide + grep in the check script | same detection (§3), no plugin, no TS plugin pitfalls |
 | Cross-session thinking | `omt_think` tool + think-gate | `TA:` comment convention + grep | identical retrieval cost, zero tooling |
 | Concurrency plane | Petri-net gate + worktrees | **out of scope** | solo dev; trigger below |
 | Self-evolution | `omt_session` evidence tooling | **out of scope** | needs ≥50 real sessions first |
 
-## 2. The paper harness — five rules (active now)
+## 2. The paper harness — six rules (active now)
 
 1. **Task declaration (R1)** — every non-trivial `src/` task exists as a
    `WORK.md` line: `[ ]` pending → `[~]` in progress → `[x]` done (done rows
@@ -50,22 +51,29 @@ simpler mechanism that prevents this failure in THIS repository?*
 4. **Budgets (R4)** — `AGENTS.md` ≤ 4.0 KiB · each `spec/*.md` ≤ 8 KiB ·
    `doc/GDD.md` ≤ 24 KiB · `WORK.md` ≤ 10 KiB ·
    `doc/omt-ts-methodology.md` ≤ 24 KiB. Every bump is a deliberate,
-   written-down decision. (Measured at adoption: AGENTS.md is 7.8 KiB —
-   accepted debt, trim scheduled at the scaffold commit, not forced mid-flight.)
+   written-down decision.
 5. **Exit check (R5)** — no task is `[x]` until `npm run harness` is green.
+6. **Nav maps (R6)** — every folder in a tracked path carries a
+   `CONTEXT.md` ≤ 2 KiB: folder purpose, per-file pointers, Up/Down links.
+   Protocol + root map live in `AGENTS.md` §Navigation: read a folder's map
+   **before entering/analyzing** it; updates ride the change. Presence +
+   budget: harness `git ls-files` scan; folders land with their map.
+   (`.sandbox/` stays self-policed — external membrane.)
 
 ## 3. The effective layer — one script, shipped WITH the scaffold
 
 No dedicated harness sprint. The game scaffold (`package.json`, `vite`,
-vitest) lands with `scripts/acyx/harness.ts` (single file, ~60 lines, Node
-std-lib only) wired as `"harness": "node scripts/acyx/harness.ts"`:
+vitest) lands with `scripts/acyx/harness.ts` (single file, Node std-lib only)
+wired as `"harness": "node scripts/acyx/harness.ts"`:
 
 1. `tsc --noEmit` + `vitest run` (exit on failure);
 2. **budget check** — byte-count the R4 files, exit 1 on overage;
 3. **boundary check** — grep `three` imports outside the permitted dirs from
    `doc/omt-ts-methodology.md` §5 (the policy single-source), exit 1 on hit;
 4. `TA:` digest line — count + per-file + stale so a new session sees all
-   gotchas in one grep.
+   gotchas in one grep;
+5. **context check (R6)** — folders derived from `git ls-files`: each needs
+   `CONTEXT.md` ≤ 2 KiB, exit 1 otherwise.
 
 That is the whole machine. No opencode plugins, no ledgers, no modes.
 
@@ -112,10 +120,10 @@ ceremony, god compiler, AKB consult gate — reopen mirrors the analysis
 
 ## 7. Open questions
 
+(Q3, AGENTS.md slimming, resolved: `3e7d140`.)
+
 1. R2 speed risk in rapid-prototyping mode: is requiring `agreed` before
    gameplay-mechanic code too slow while specs are intentionally thin?
    Candidate exemption: `tuning` class changes (values only, no mechanics).
 2. `WORK.md` metadata richness (`<!-- id prio agent -->`): adopt the
    convention now (upstream-compatible) or later?
-3. AGENTS.md slimming plan (7.8 KiB → 4.0 KiB): which sections become nav
-   pointers — decide at the scaffold commit when the workload is visible.

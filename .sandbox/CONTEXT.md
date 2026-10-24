@@ -6,7 +6,8 @@ this map tracked). Self-imposed budget: ≤ 2.5 KiB — it is a *map*, not conte
 ## The sandbox idea
 
 Every agent-facing repo surface is byte-budgeted (`spec/meta-harness.md` R4:
-AGENTS.md · `spec/*.md` · GDD · WORK.md · methodology guide), and the
+AGENTS.md · `spec/*.md` · GDD · WORK.md · methodology guide · per-folder
+`CONTEXT.md` (R6)), and the
 methodology holds that daily work must never *depend* on sandbox-local paths.
 Deep analysis, upstream references and experiments still need to exist
 *somewhere* an agent can reach across sessions.
@@ -42,4 +43,5 @@ material; the repo keeps the thin contract and the `WORK.md` ledger.
 | [x] | Sandbox map committed | `docs(harness)` (this commit) |
 | [x] | T0 — paper layer live: repo `WORK.md` seeded, AC1 accepted, spec statuses synced | `docs(harness)` (this commit) |
 | [x] | Scaffold — vertical slice + `scripts/acyx/harness.ts` green (AC2) | 3e7d140 `feat(scaffold)` + closure `docs(harness)` |
+| [x] | Nav layer (R6): per-folder `CONTEXT.md` maps + AGENTS.md protocol + harness check | this commit, in-repo `docs(harness)` |
 | [ ] | First gameplay slice — player flight per repo `WORK.md` pending row | next |

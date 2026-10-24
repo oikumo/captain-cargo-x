@@ -24,4 +24,4 @@ Technical specs for the TypeScript / three.js port. Layer map:
 | `enemies.md` | Enemy roster & threat behavior | draft |
 | `objectives.md` | Shield-bubble dome objectives | draft |
 | `asset-pipeline.md` | Blender → glTF → three.js + placeholder system | draft |
-| `meta-harness.md` | META HARNESS adaptation (`paper harness` v1.1) — 5 rules + grow-on-trigger plan | implemented |
+| `meta-harness.md` | META HARNESS adaptation (`paper harness` v1.2) — R1–R6 + grow-on-trigger plan | implemented |
