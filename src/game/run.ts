@@ -73,7 +73,7 @@ export class RunModel {
   readonly lockon: LockonDirector;
   readonly director: SpawnDirector;
 
-  private readonly sink: RunSink;
+  private sink: RunSink;
   private readonly box: RngBox;
   private readonly threats: boolean;
 
@@ -84,6 +84,16 @@ export class RunModel {
     this.threats = opts.threats ?? true;
     this.lockon = new LockonDirector(this.box, this.shells);
     this.director = new SpawnDirector(this.box);
+  }
+
+  /**
+   * Late-bind the sink (bootstrap order: run → controller → rebind — the
+   * controller IS the sink, but its constructor needs the run instance).
+   * Pre: called once at boot, before the first `start()`.
+   * Post: all subsequent model notifications route to `sink`.
+   */
+  rebindSink(sink: RunSink): void {
+    this.sink = sink;
   }
 
   /**

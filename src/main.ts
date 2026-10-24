@@ -1,27 +1,68 @@
 /**
  * Bootstrap render glue — per doc/omt-ts-methodology.md §5, engine imports
- * are permitted here (and in src/render|world|fx|loaders only). Gameplay
- * logic must stay engine-free; this boot wires renderer + loop, nothing more.
+ * are permitted here (and in src/render|world|fx|loaders only). Wires
+ * renderer → view, DOM keys → input map, run → controller, model events →
+ * bus → HUD/screens/FX. No gameplay logic lives in this file.
  */
 import * as THREE from 'three';
+import './ui/styles.css';
 import { GameLoop } from './core/loop';
+import { EventBus } from './core/bus';
+import { InputMap, type InputAction } from './core/input';
+import { GameController, type GameEvents } from './core/run-controller';
+import { RunModel } from './game/run';
+import { loadAll } from './loaders/registry';
+import { GameView } from './render/view';
+import { Hud } from './ui/hud';
+import { Screens } from './ui/screens';
 
-// Placeholder boot view — deep-ocean night. First real views come from
-// src/world|render once an asset pass lands (spec/asset-pipeline.md).
-const SKY = 0x0b1d33;
+/** GDD §7 control mapping — key codes to input actions. */
+const KEYS: Record<string, InputAction> = {
+  ArrowLeft: 'left',
+  KeyA: 'left',
+  ArrowRight: 'right',
+  KeyD: 'right',
+  ArrowUp: 'up',
+  KeyW: 'up',
+  ArrowDown: 'down',
+  KeyS: 'down',
+  Space: 'fire',
+  Enter: 'confirm',
+  KeyR: 'restart',
+  KeyP: 'pause',
+};
 
-function boot(): void {
+async function boot(): Promise<void> {
   const canvas = document.querySelector<HTMLCanvasElement>('#game');
   if (!canvas) throw new Error('boot: #game canvas missing');
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(SKY);
-  scene.fog = new THREE.Fog(SKY, 200, 1600);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 4000);
-  camera.position.set(0, 40, 160);
-  camera.lookAt(0, 20, 0);
+  const bus = new EventBus<GameEvents>();
+  const input = new InputMap();
+  const run = new RunModel({}, { seed: 1337 });
+  const controller = new GameController(bus, input, run);
+  run.rebindSink(controller); // controller is the run's sink (bootstrap order)
+
+  const templates = await loadAll(); // zero-.glb boot → placeholders
+  const view = new GameView(renderer, run, bus, templates);
+  new Hud(bus);
+  new Screens(bus);
+
+  window.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+    const action = KEYS[e.code];
+    if (action) {
+      input.press(action);
+      e.preventDefault();
+    }
+  });
+  window.addEventListener('keyup', (e) => {
+    const action = KEYS[e.code];
+    if (action) input.release(action);
+  });
+  window.addEventListener('blur', () => input.clear());
 
   const loop = new GameLoop({
     requestFrame: (cb) => requestAnimationFrame(cb),
@@ -29,16 +70,17 @@ function boot(): void {
     now: () => performance.now() / 1000,
   });
 
-  const onResize = (): void => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-  };
+  const onResize = (): void => view.resize(window.innerWidth, window.innerHeight);
   window.addEventListener('resize', onResize);
   onResize();
 
-  // dt is unused until the first sim systems ship (next WORK.md task).
-  loop.start((_dt) => renderer.render(scene, camera));
+  loop.start((dt) => {
+    controller.update(dt); // input intents → state machine → run sim
+    view.update(dt); // poll model, animate FX, chase camera
+    view.render();
+  });
 }
 
-boot();
+boot().catch((err: unknown) => {
+  console.error('boot failed:', err);
+});
