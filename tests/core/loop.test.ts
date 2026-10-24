@@ -5,6 +5,9 @@ import { GameLoop, type LoopClock } from '../../src/core/loop';
  * Deterministic scheduler seam: scripted clock + manually fired frames.
  * `fire(dt)` advances the fake clock and runs exactly one queued frame,
  * mirroring the browser rAF contract.
+ *
+ * TA: never run tests with `vitest -t <name>` — an unmatched filter exits 0
+ *     (false green); run whole files (doc/omt-ts-methodology.md §12).
  */
 class FakeClock implements LoopClock {
   scheduled: Array<() => void> = [];

@@ -41,4 +41,5 @@ material; the repo keeps the thin contract and the `WORK.md` ledger.
 |---|---|---|
 | [x] | Sandbox map committed | `docs(harness)` (this commit) |
 | [x] | T0 — paper layer live: repo `WORK.md` seeded, AC1 accepted, spec statuses synced | `docs(harness)` (this commit) |
-| [ ] | Scaffold — vertical slice + `scripts/acyx/harness.ts` green (AC2) | biggest step |
+| [x] | Scaffold — vertical slice + `scripts/acyx/harness.ts` green (AC2) | 3e7d140 `feat(scaffold)` + closure `docs(harness)` |
+| [ ] | First gameplay slice — player flight per repo `WORK.md` pending row | next |

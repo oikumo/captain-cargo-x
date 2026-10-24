@@ -10,8 +10,11 @@
  *                         D4 DOM-in-controller, D5 view-built controllers,
  *                         D6 wall-clock-in-model
  *     (D2 view-mutates-state is not statically greppable — review-time, §6)
- *   4. TA digest        — count + locations of persistent `TA:` gotchas (R3)
+ *   4. TA digest        — count + locations of persistent gotcha tags (R3)
  * Keep the mirrored values in sync with those two spec files.
+ *
+ * TA: runs via node type-stripping — enums / parameter-properties are NOT
+ *     erasable syntax; keep plain fields in this script only.
  */
 import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
@@ -132,7 +135,7 @@ scan(
 if (failures === 0) ok('boundaries checked (import + io + dom + wallclock + DI)');
 
 // -- 4. TA digest (R3) — informational, never fails the run --------------------
-const taFiles = [...walk('src'), ...walk('tests')];
+const taFiles = [...walk('src'), ...walk('tests'), ...walk('scripts/acyx')];
 const tags: string[] = [];
 for (const f of taFiles) {
   const lines = readFileSync(join(ROOT, f), 'utf8').split('\n');

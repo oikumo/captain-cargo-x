@@ -1,9 +1,8 @@
 # Spec — META HARNESS implementation (`paper harness` for Captain Cargo X)
 
-Status: **agreed (v1.1)** — the paper layer is active (T0 shipped); the game
-scaffold carrying the effective layer (§3) ships in the same change that
-bumps this status (R2; user-approved in-session). This file is **self-contained**:
-the agentx reference + the deep analysis live in git-ignored
+Status: **implemented (v1.1)** — paper layer + game scaffold live; the check
+script is `scripts/acyx/harness.ts` (`npm run harness`, green). This file is
+**self-contained**: the agentx reference + the deep analysis live in git-ignored
 `.sandbox/` (execution workspace — bulk untracked, entry map
 `.sandbox/CONTEXT.md` tracked); nothing below depends on them.
 
@@ -15,6 +14,7 @@ the agentx reference + the deep analysis live in git-ignored
 | 2026-10-24 | **v1.1 — simplicity rebalance**: git-native audit, ONE check script, grow-on-trigger gates. S3/S4/S5 collapsed into incident-driven growth (original plan kept in git history). |
 | 2026-10-24 | **T0 executed**: `.sandbox/CONTEXT.md` tracked as the sandbox entry map (gitignore exception); root `WORK.md` seeded — AC1 meets its checklist. |
 | 2026-10-24 | **Scaffold commit**: status `draft → agreed` (user in the loop); §3 lands as `scripts/acyx/harness.ts` wired to `npm run harness`; AC2 proven in-session (three seeded violations, each exit 1). |
+| 2026-10-24 | Closure: AC2 ✓ and AC3 ✓ ticked; status `agreed → implemented`. |
 
 ## 1. Objective — effective at minimum machinery
 
@@ -100,10 +100,10 @@ ceremony, god compiler, AKB consult gate — reopen mirrors the analysis
 - [x] **AC1 (now):** AGENTS.md §7 carries the R1–R5 summary + methodology
   pointer; `WORK.md` exists with its first pending task (`scaffold
   vertical slice`); this spec's budgets are the recorded numbers.
-- [ ] **AC2 (scaffold):** `npm run harness` green on a clean tree; three
+- [x] **AC2 (scaffold):** `npm run harness` green on a clean tree; three
   seeded violations (over-budget specimen, out-of-boundary import, failing
   test) each produce exit 1 and a one-line pointer.
-- [ ] **AC3:** cross-session reconstruction: from `git log --oneline` +
+- [x] **AC3:** cross-session reconstruction: from `git log --oneline` +
   `WORK.md` alone, "what did the last session do, what's next" is answerable
   in ≤3 sentences.
 - [ ] **AC4 (zero ceremony):** the harness never mediates human-only
