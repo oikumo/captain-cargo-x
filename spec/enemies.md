@@ -23,7 +23,9 @@ awaiting prototype measurement (GDD §8). Jet-chain is **out** of v0.0.1.
 - Jet flight: speed 60 m/s, spawn 1400 m ahead, crossing heading ±20° off
   perpendicular, spacing 45 m along the flight path; cadence every 3–5 s
   (no difficulty scaling in v0.0.1).
-- Drone: speed 28 m/s, spawn 500 m ahead, ±600 m lateral.
+- Drone: speed 28 m/s, spawn 500 m ahead, ±600 m lateral, low over the water
+  (y ≈ 14 — overflown on the default course); own cadence 6–9 s (v0.0.1
+  proposal — the prototype drone cadence is unmeasured).
 - Lock-on: cadence 8–12 s; gunship spawns 1200 m ahead at altitude ~60,
   drifts ±20 m/s lateral; telegraph 1.5 s → one shell (45 m/s) toward the
   player's position at lock moment (no tracking); shell dies at y ≤ 2

@@ -1,9 +1,11 @@
 # tests/utils — CONTEXT
 
-`src/utils` pure-helper tests.
+Pure-helper tests — no injection needed beyond literals.
 
 | File | Covers |
 |---|---|
-| `time.test.ts` | `clampDelta`: bounds [0, max], negative timer drift clamps to 0 |
+| `time.test.ts` | `clampDelta` bounds (spike clamp, rewind floor) |
+| `math.test.ts` | `clamp` / `lerp` / `damp` (monotonic convergence, snap on big dt) |
+| `random.test.ts` | `makeRng` determinism, seed divergence, `range` bounds |
 
-Mirror rule: a new `src/utils` helper ⇒ a `tests/utils` file + a row here.
+Up: `../CONTEXT.md` · Down: `../../src/utils/CONTEXT.md`
