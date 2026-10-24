@@ -2,13 +2,15 @@
 
 > **Incremental document.** Sections are intentionally brief; **TBD** marks open
 > areas to be filled in as the TypeScript port progresses.
-> Baseline for gameplay behavior = the Unity prototype (see `AGENTS.md` §2).
+> Baseline for gameplay behavior = the original game-engine prototype; its
+> observed structure is §1–11 below.
 > Any intentional divergence from the prototype must be written down here.
 
 ## Changelog
 | Date | Change |
 |---|---|
 | 2026-10-24 | Initial stub, gameplay mechanics focus. |
+| 2026-10-24 | World & FX sections (§10–§11) captured from workspace context; vendor-generic wording ("game engine"). |
 
 ---
 
@@ -18,7 +20,7 @@
   low-poly ocean, shred enemy flights, break shield bubbles, top the score.
 - Feel keywords: arcade spectacle, chunky score digits, constant forward
   momentum, easy to learn, hard to master.
-- Port success criterion: the TS/three.js build *feels* like the Unity
+- Port success criterion: the TS/three.js build *feels* like the game-engine
   prototype (speed, cadence, punch). **TBD** — define measurable acceptance
   checks (e.g. timing comparisons).
 
@@ -77,7 +79,7 @@ events, or are shells strictly telegraphed?
 - HUD: lives bars (6) — ship icon — score counter (right, chunky digits).
 - **Chain-kill surges:** kills within a short window multiply score (footage
   score roughly doubles within ~1 s of footage, 38,200 → 78,600).
-- Values table to be measured from the Unity build:
+- Values table to be measured from the game-engine build:
 
 | Event | Prototype value |
 |---|---|
@@ -106,9 +108,9 @@ events, or are shells strictly telegraphed?
 | Pause | P |
 | Touch/gamepad support | **TBD** |
 
-## 8. Tuning values — extract from the Unity prototype
+## 8. Tuning values — extract from the game-engine build
 
-Port rule: **measure, don't invent.** The Unity project should be instrumented
+Port rule: **measure, don't invent.** The game-engine project should be instrumented
 or timed from footage to fill the TBD tables above before tuning the TS build:
 
 - [ ] Base speed (u/s) and real-world scale
@@ -128,3 +130,17 @@ or timed from footage to fill the TBD tables above before tuning the TS build:
 3. Are shallow teal waters purely a visual off-course cue, or hazardous?
 4. Difficulty escalation over distance?
 5. Multiple domes at once late-game — escalating objective waves?
+
+## 10. World & course structure (observed in prototype footage)
+
+- Vast low-poly ocean with subtle wave shading; **shallow teal** water marks
+  coastal shallows — doubles as an implicit off-course visual cue
+  (hazard or not: §9 Q3).
+- The course bends: land strips occupy its corners; islands carry props
+  (crates, barrels, dark blocks, grey rock formations, runway-like planes).
+
+## 11. FX vocabulary (observed) — reuse to preserve identity
+
+Orange tracer projectiles + cannon muzzle flash · large particle explosions
+on kills · pink/orange translucent blast & shield-burst spheres · green
+multi-beam lock-on lasers · water splash particles.

@@ -1,7 +1,8 @@
 # Spec — META HARNESS implementation (`paper harness` for Captain Cargo X)
 
-Status: **draft (v1.1)** — the paper layer is active now (T0 shipped); the
-effective layer lands with the game scaffold. This file is **self-contained**:
+Status: **agreed (v1.1)** — the paper layer is active (T0 shipped); the game
+scaffold carrying the effective layer (§3) ships in the same change that
+bumps this status (R2; user-approved in-session). This file is **self-contained**:
 the agentx reference + the deep analysis live in git-ignored
 `.sandbox/` (execution workspace — bulk untracked, entry map
 `.sandbox/CONTEXT.md` tracked); nothing below depends on them.
@@ -13,6 +14,7 @@ the agentx reference + the deep analysis live in git-ignored
 | 2026-10-24 | Initial contract: 5 rules + sprint plan S1–S5. |
 | 2026-10-24 | **v1.1 — simplicity rebalance**: git-native audit, ONE check script, grow-on-trigger gates. S3/S4/S5 collapsed into incident-driven growth (original plan kept in git history). |
 | 2026-10-24 | **T0 executed**: `.sandbox/CONTEXT.md` tracked as the sandbox entry map (gitignore exception); root `WORK.md` seeded — AC1 meets its checklist. |
+| 2026-10-24 | **Scaffold commit**: status `draft → agreed` (user in the loop); §3 lands as `scripts/acyx/harness.ts` wired to `npm run harness`; AC2 proven in-session (three seeded violations, each exit 1). |
 
 ## 1. Objective — effective at minimum machinery
 

@@ -26,6 +26,6 @@ Status: draft — values pending prototype measurement (GDD §6, §8)
 
 ## Open
 
-- [ ] Exact base values — measure from Unity build or footage timeline first.
+- [ ] Exact base values — measure from the game-engine build or footage timeline first.
 - [ ] Bonus for destroying a full jet chain set piece?
 - [ ] Does flying into shallows/off-course cost anything?
