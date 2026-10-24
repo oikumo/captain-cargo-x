@@ -1,10 +1,12 @@
 # tests/core — CONTEXT
 
-`src/core` controller tests — deterministic; `LoopClock` partner mocked in
-process, no rAF, no wall time.
+Controller-layer tests — injected clocks/partners only (methodology §12).
 
 | File | Covers |
 |---|---|
-| `loop.test.ts` | `GameLoop`: one outstanding frame, dt clamped to max, `stop()` cancels, restart safe |
+| `loop.test.ts` | `GameLoop`: cadence, clamped deltas, stop/restart, idempotent start |
+| `bus.test.ts` | `EventBus`: fan-out payloads, unsubscribe, listener-less emit |
+| `input.test.ts` | `InputMap`: hold state, single-shot edges, focus-loss clear |
+| `run-controller.test.ts` | `GameController`: menu→playing, pause freeze/thaw, axis routing, gameover→restart, bus relay |
 
-Mirror rule: a new `src/core` module ⇒ a `tests/core` file + a row here.
+Up: `../CONTEXT.md` · Down: `../../src/core/CONTEXT.md`
