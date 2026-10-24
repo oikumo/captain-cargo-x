@@ -10,7 +10,7 @@ a status line `draft → agreed → implemented → frozen`; rules + index live 
 | `asset-pipeline.md` | Blender → glTF → three.js; placeholder factories (zero-`.glb` boot) | draft |
 | `enemies.md` | v1 roster: jets, drone?, jet-chain, lock-on beam/shell | draft |
 | `hud.md` | pure-DOM bottom bar: lives / ship / score; start + game-over overlays | draft |
-| `meta-harness.md` | paper harness process contract (R1–R6) | implemented |
+| `meta-harness.md` | paper harness process contract (R1–R6, v1.3 mechanical) | implemented |
 | `objectives.md` | shield-dome mechanics, spawn cadence | draft |
 | `scoring.md` | `Scoring` class; chain-surge rule; 6 lives | draft |
 

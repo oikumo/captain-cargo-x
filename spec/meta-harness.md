@@ -1,129 +1,143 @@
 # Spec — META HARNESS implementation (`paper harness` for Captain Cargo X)
 
-Status: **implemented (v1.2)** — paper layer + game scaffold live; the check
-script is `scripts/acyx/harness.ts` (`npm run harness`, green). This file is
-**self-contained**: the agentx reference + the deep analysis live in git-ignored
-`.sandbox/` (execution workspace — bulk untracked, entry map
-`.sandbox/CONTEXT.md` tracked); nothing below depends on them.
+Status: **implemented (v1.3)** — paper layer + mechanical enforcement live; the
+check script is `scripts/acyx/harness.ts` (`npm run harness`, green). This file
+is **self-contained**: agentx reference + deep analysis live in the untracked
+`.sandbox/` membrane (map: `.sandbox/CONTEXT.md`); nothing below depends on them.
 
 ## Changelog
 
 | Date | Change |
 |---|---|
-| 2026-10-24 | Initial contract: 5 rules + sprint plan S1–S5. |
-| 2026-10-24 | **v1.1 — simplicity rebalance**: git-native audit, ONE check script, grow-on-trigger gates. S3/S4/S5 collapsed into incident-driven growth (original plan kept in git history). |
-| 2026-10-24 | **T0 executed**: `.sandbox/CONTEXT.md` tracked as the sandbox entry map (gitignore exception); root `WORK.md` seeded — AC1 meets its checklist. |
-| 2026-10-24 | **Scaffold commit**: status `draft → agreed` (user in the loop); §3 lands as `scripts/acyx/harness.ts` wired to `npm run harness`; AC2 proven in-session (three seeded violations, each exit 1). |
-| 2026-10-24 | Closure: AC2 ✓ and AC3 ✓ ticked; status `agreed → implemented`. |
-| 2026-10-24 | **v1.2 — R6 nav layer**: per-folder `CONTEXT.md` ≤ 2 KiB; read-before-enter (AGENTS.md); harness context check. |
+| 2026-10-24 | v1.0–v1.2 contract + paper layer + scaffold + nav layer (details in git history). |
+| 2026-10-24 | **v1.3 — fully mechanical (agentx-adapted)**: R1 ledger + commit audit · R2 status gate + index sync · R3 TA-deletion guard · transport: origin-only remotes (harness lint + denies; commit allowed, push denied). |
 
 ## 1. Objective — effective at minimum machinery
 
 Prevent the only three failure modes that are real in a solo, agent-driven
 game repo: **(1) context-window bloat, (2) code drifting from the design
-docs, (3) undocumented changes losing cross-session memory.** Everything the
-META HARNESS upstream does is filtered through one question: *is there a
-simpler mechanism that prevents this failure in THIS repository?*
+docs, (3) undocumented changes losing cross-session memory.** Filter every
+upstream (agentx) mechanism through one question: *is there a simpler
+mechanism that prevents this failure in THIS repository?*
 
-| Capability | Heavy (agentx) | CCX v1.1 | Why it stays effective |
+| Capability | Heavy (agentx) | CCX v1.3 | Why it stays effective |
 |---|---|---|---|
-| Process audit | JSONL ledger + expiry windows + tools | `WORK.md` task lines + git commits | grep-able by human & agent, survives compaction, zero runtime |
-| Phase gating | `omt_phase` gate chain | spec-status gate + task-tag commit format (R1/R2) | same failure caught (code ahead of design) at review time |
-| Token budgets | compile-enforced, 11 surfaces | budget-capped agent-facing files + script check | bloat lives only on capped files; rest free-form |
-| Layer policy | MVC++ linter + after-gate plugin | policy in methodology guide + grep in the check script | same detection (§3), no plugin, no TS plugin pitfalls |
-| Cross-session thinking | `omt_think` tool + think-gate | `TA:` comment convention + grep | identical retrieval cost, zero tooling |
-| Concurrency plane | Petri-net gate + worktrees | **out of scope** | solo dev; trigger below |
-| Self-evolution | `omt_session` evidence tooling | **out of scope** | needs ≥50 real sessions first |
+| Process audit | JSONL ledger | `WORK.md` rows + git + harness audit | grep-able, survives compaction |
+| Phase gating | `omt_phase` chain | spec-citation status gate (grep) | same failure caught, no plugin |
+| Token budgets | compile-enforced | byte caps + script check | bloat lives only on capped files |
+| Layer policy | MVC++ linter + plugins | methodology §5/§16 greps | same detection, no plugin pitfalls |
+| Cross-session thinking | `omt_think` tool | `TA:` + grep + deletion guard | identical retrieval, zero tooling |
+| Transport/deny | shell deny config | same mechanism, static | zero per-turn cost |
+| Concurrency / self-evolution | Petri net / session tools | **out of scope** | solo dev; see §4 triggers |
 
-## 2. The paper harness — six rules (active now)
+## 2. The paper harness — six rules (active, mechanically checked)
 
 1. **Task declaration (R1)** — every non-trivial `src/` task exists as a
-   `WORK.md` line: `[ ]` pending → `[~]` in progress → `[x]` done (done rows
-   keep a pointer to the commit + the spec they implement). Commit format:
-   ``<tag>(<area>): <subject>`` with tag ∈ `feat|fix|refactor|test|docs|art|state`.
-2. **Spec status gate (R2)** — code that implements a `spec/*.md` file may be
-   written only when that spec's status is `agreed` (or the same change bumps
-   the status, with the user in the loop). Early-phase tuning is exempt:
-   `doc/GDD.md §2` (the measured-prototype truth) outranks specifications.
+   `WORK.md` line: `[ ]` pending → `[~]` in progress → `[x]` done. Commit
+   format: `<tag>(<area>): <subject>`, tag ∈
+   `feat|fix|refactor|test|docs|art|state`.
+   *Mechanical:* the harness lints every row (valid date, marker vocabulary,
+   task + spec cells non-empty, `[x]` ⇒ evidence carries a commit ref) and
+   audits history since the paper layer went live (`c78568b`): every
+   src-touching commit's hash must appear in a `WORK.md` evidence cell, and
+   every commit subject in that window must match the format (earlier
+   commits exempt).
+2. **Spec status gate (R2)** — code implementing a `spec/*.md` file may be
+   written only when its status is `agreed` or beyond. Early-phase tuning is
+   exempt: `doc/GDD.md §2` (measured-prototype truth) outranks specs.
+   *Mechanical:* the gate keys on *affiliations* — a `spec/<name>.md`
+   citation in a `src/` file's top header block declares "this file
+   implements spec X" and must resolve to a real spec whose status line
+   parses and reads ≥ `agreed` (draft ⇒ exit 1); body citations are pointers
+   (not implementation) and are checked only to exist; `spec/README.md`
+   index must list every spec with the same status word as the spec's own
+   `Status:` line (drift ⇒ exit 1).
 3. **Think tags (R3)** — persistent inline `TA:` comments carry hard-won
    gotchas; a tagged file is re-read (grep) before editing; tags are never
-   deleted silently. One line per thought.
-4. **Budgets (R4)** — `AGENTS.md` ≤ 4.0 KiB · each `spec/*.md` ≤ 8 KiB ·
-   `doc/GDD.md` ≤ 24 KiB · `WORK.md` ≤ 10 KiB ·
-   `doc/omt-ts-methodology.md` ≤ 24 KiB. Every bump is a deliberate,
+   deleted silently.
+   *Mechanical:* for each code file, a `TA:` tag present at `HEAD` but gone
+   from the working tree fails the check unless the file now carries a
+   `TA-:` removal note (the non-silent deletion marker). Guard bites
+   pre-commit — the natural `npm run harness` point.
+4. **Budgets (R4)** — agent-facing **markdown** files only (source code is
+   never budgeted): `AGENTS.md` ≤ 4.0 KiB · each `spec/*.md` ≤ 8 KiB ·
+   `doc/GDD.md` ≤ 24 KiB · `doc/omt-ts-methodology.md` ≤ 24 KiB · `WORK.md`
+   ≤ 10 KiB · every folder `CONTEXT.md` ≤ 2 KiB. Every bump is a deliberate,
    written-down decision.
 5. **Exit check (R5)** — no task is `[x]` until `npm run harness` is green.
+   *Mechanical:* the exit check runs at ask-time (agent runs it before
+   closing a row); nothing gates git itself — `git commit` is **always
+   allowed** (no pre-commit hook, ever).
 6. **Nav maps (R6)** — every folder in a tracked path carries a
-   `CONTEXT.md` ≤ 2 KiB: folder purpose, per-file pointers, Up/Down links.
-   Protocol + root map live in `AGENTS.md` §Navigation: read a folder's map
-   **before entering/analyzing** it; updates ride the change. Presence +
-   budget: harness `git ls-files` scan; folders land with their map.
-   (`.sandbox/` stays self-policed — external membrane.)
+   `CONTEXT.md` ≤ 2 KiB (purpose, per-file pointers, Up/Down links);
+   presence + size harness-checked from `git ls-files`. `.sandbox/` stays
+   self-policed (external membrane).
 
-## 3. The effective layer — one script, shipped WITH the scaffold
+## 3. The effective layer — one script + one deny list
 
-No dedicated harness sprint. The game scaffold (`package.json`, `vite`,
-vitest) lands with `scripts/acyx/harness.ts` (single file, Node std-lib only)
-wired as `"harness": "node scripts/acyx/harness.ts"`:
+`scripts/acyx/harness.ts` (single file, Node std-lib only, wired as
+`npm run harness`) checks, each failure ⇒ exit 1 with a one-line pointer:
 
-1. `tsc --noEmit` + `vitest run` (exit on failure);
-2. **budget check** — byte-count the R4 files, exit 1 on overage;
-3. **boundary check** — grep `three` imports outside the permitted dirs from
-   `doc/omt-ts-methodology.md` §5 (the policy single-source), exit 1 on hit;
-4. `TA:` digest line — count + per-file + stale so a new session sees all
-   gotchas in one grep;
-5. **context check (R6)** — folders derived from `git ls-files`: each needs
-   `CONTEXT.md` ≤ 2 KiB, exit 1 otherwise.
+1. `tsc --noEmit` + `vitest run` (R5);
+2. **budgets** (R4, above);
+3. **boundaries** — methodology §5 import policy + §16 detectors (greppable
+   subset: D1/D3/D4/D5/D6 — D2 is review-time);
+4. `TA:` digest — count + locations of persistent gotchas;
+5. **context** (R6) — tracked folders carry a ≤ 2 KiB `CONTEXT.md`;
+6. **ledger** (R1 as written: row lint + src-commit + commit-format audit);
+7. **spec status** (R2: affiliations ≥ agreed; pointers exist; index sync);
+8. **TA guard** (R3 as written: HEAD-vs-tree tag diff, `TA-:` escape);
+9. **transport lint** — `git remote` must be exactly `origin`, and every
+   `branch.*.remote` config must point at `origin`.
 
-That is the whole machine. No opencode plugins, no ledgers, no modes.
+**Transport, agent-side (`opencode.jsonc` — static, zero-token config):**
+`git push *` denied; remote mutation
+(`remote add/set-url/remove/rename`, `submodule`, `clone`) and fetch/pull
+with a non-origin URL denied. Read-only git and **all commits** stay
+allow-by-default — the list protects what check 9 also detects, but blocks
+before damage instead of after.
 
-## 4. Grow-on-trigger (replaces the sprint plan)
+That is the whole machine: no runtime gates, no ledgers, no modes.
+
+## 4. Grow-on-trigger (replaces any sprint plan)
 
 Instrument **only after a measured incident**, never preemptively:
 
 | Measured trigger | Instrument to add | Cost class |
 |---|---|---|
-| Resume from `WORK.md` + git log fails twice | append-only `.meta/.omt/ledger.jsonl` + `ledgerc` | small CLI |
-| Agent edits a spec-tagged file without consulting it (once, then again) | first opencode plugin gate: `protect → phase-ledger → think` (read the upstream plugin gotchas first: TS plugins don't hot-reload; before/after hook arg asymmetry) | plugin |
-| Recurring budget violations | `budgetc` moves from R4 convention to CI pin test | trivial |
-| Second recurring maintenance loop the agent repeats by hand | start the `.workflows/` catalog (2-level discovery + approval gate) | low |
-| ≥2 agent sessions working adjacent files | reconsider the Petri-net concurrency plane — adopt agentx design upstream, don't fork it | big |
-| ≥50 real sessions / unexplained cost spike | session-evidence tooling (`omt_session` analog) | big |
+| Resume from `WORK.md` + git log fails twice | `.meta/.omt/ledger.jsonl` + CLI | small |
+| Agent edits a tagged/spec file without consulting it (twice) | first opencode *plugin* gate (read upstream gotchas first: TS plugins don't hot-reload; before/after hook arg asymmetry) | plugin |
+| Recurring budget violations | `budgetc` moves to CI pin test | trivial |
+| Second recurring manual maintenance loop | `.workflows/` catalog + approval gate | low |
+| ≥2 agent sessions on adjacent files / ≥50 sessions | agentx concurrency / session-evidence tooling, adopt upstream | big |
 
 **Permanently out (this repo):** DSL + projection compiler, receipt/e2e
-ceremony, god compiler, AKB consult gate — reopen mirrors the analysis
-(`.sandbox/adapt-meta-harness.md` §B.6) only at game-series scale.
+ceremony, god compiler, AKB consult gate — reopen only at game-series scale
+(deep analysis in `.sandbox/adapt-meta-harness.md` §B.6).
 
-## 5. What v1.1 deliberately drops — and why simple still wins
+## 5. What v1.1 deliberately dropped — and why simple still wins
 
-- **No runtime gates initially** — gates pay per-turn token cost (every hook
-  rides the tool loop). With few sessions, review + the check script catch
-  the same defects for zero recurring cost.
-- **No generated `AGENTS.md`** — hand-written stays; drift risk is bounded by
-  R2 + review checklist, not a compiler suite to maintain.
-- **No new file formats** — WORK.md conventions + git are the only state.
+- **No runtime gates** — per-turn token cost; the script + static config
+  catch the same defects for zero recurring cost.
+- **No generated `AGENTS.md`, no new file formats** — hand-written +
+  `WORK.md` + git are the only state.
 
 ## 6. Acceptance criteria
 
-- [x] **AC1 (now):** AGENTS.md §7 carries the R1–R5 summary + methodology
-  pointer; `WORK.md` exists with its first pending task (`scaffold
-  vertical slice`); this spec's budgets are the recorded numbers.
-- [x] **AC2 (scaffold):** `npm run harness` green on a clean tree; three
-  seeded violations (over-budget specimen, out-of-boundary import, failing
-  test) each produce exit 1 and a one-line pointer.
-- [x] **AC3:** cross-session reconstruction: from `git log --oneline` +
-  `WORK.md` alone, "what did the last session do, what's next" is answerable
-  in ≤3 sentences.
-- [ ] **AC4 (zero ceremony):** the harness never mediates human-only
-  workflow (`npm run dev`, plain `git commit` without agents); it gates only
-  agent-driven task closure.
+- [x] **AC1:** AGENTS.md carries the R summary + pointer; `WORK.md` exists;
+  budgets recorded.
+- [x] **AC2:** green on a clean tree; seeded violations each exit 1 with a
+  one-line pointer.
+- [x] **AC3:** cross-session reconstruction from `git log` + `WORK.md` in
+  ≤3 sentences.
+- [x] **AC4 (zero ceremony):** the harness never mediates human-only
+  workflow; it gates only agent-driven task closure. v1.3 precision: commits
+  never blocked; denies touch only transport.
+- [x] **AC5:** every §3 check has a seeded-violation proof (violation →
+  exit 1 + one-line pointer → reverted); `WORK.md` rows hold the evidence.
 
 ## 7. Open questions
 
-(Q3, AGENTS.md slimming, resolved: `3e7d140`.)
-
-1. R2 speed risk in rapid-prototyping mode: is requiring `agreed` before
-   gameplay-mechanic code too slow while specs are intentionally thin?
-   Candidate exemption: `tuning` class changes (values only, no mechanics).
-2. `WORK.md` metadata richness (`<!-- id prio agent -->`): adopt the
-   convention now (upstream-compatible) or later?
+1. R2 speed risk (agreed-before-code vs rapid prototyping) — candidate
+   exemption: `tuning` class changes (values only, no mechanics).
+2. `WORK.md` metadata richness (`<!-- id prio agent -->`): adopt later.

@@ -26,7 +26,8 @@ scoring), not its implementation details.
 ```
 ROOT      AGENTS.md (rules + map, ≤4 KiB) · WORK.md (task ledger, ≤10 KiB) ·
           build boilerplate: vite.config.ts, tsconfig.json, index.html,
-          package.json, README.md (plain app config — no map row needed)
+          package.json, README.md, opencode.jsonc (plain app config —
+          no map row needed)
 doc/      design truth: GDD (§1–11) + TS methodology guide   (≤24 KiB each)
 spec/     thin contracts, status gate; index: spec/README.md (≤8 KiB each)
 src/      the port → core/ controller · game/ model (planned) ·
@@ -64,6 +65,10 @@ blender/        art source of truth (.blend; lands with the art pass)
 5. **R5** — no task closes `[x]` until `npm run harness` is green.
 6. **R6** — nav maps: `CONTEXT.md` per folder; read-before-enter; updates ride
    the change (§Navigation above).
+
+Git transport (v1.3): `git commit` is **always allowed** — nothing gates it;
+the agent denies `git push`, and remotes are origin-only (`opencode.jsonc`
+denies + harness transport lint, `spec/meta-harness.md` §3).
 
 Commits: `<tag>(<area>): <subject>`, tag ∈
 `feat|fix|refactor|test|docs|art|state` (areas like `fx`, `hud`, `player`).
