@@ -19,9 +19,10 @@ Technical specs for the TypeScript / three.js port. Layer map:
 
 | Spec | Topic | Status |
 |---|---|---|
-| `hud.md` | HUD layout & behavior | draft |
-| `scoring.md` | Score, chain surges, lives model | draft |
-| `enemies.md` | Enemy roster & threat behavior | draft |
-| `objectives.md` | Shield-bubble dome objectives | draft |
-| `asset-pipeline.md` | Blender → glTF → three.js + placeholder system | draft |
+| `hud.md` | HUD layout & behavior: lives/ship/score + overlays | agreed |
+| `scoring.md` | Score, chain surges, lives model | agreed |
+| `enemies.md` | Enemy roster & threat behavior (v0.0.1 scope) | agreed |
+| `objectives.md` | Shield-bubble dome objectives | agreed |
+| `player.md` | Hover-fighter: flight, cannon, damage/i-frames | agreed |
+| `asset-pipeline.md` | Blender → glTF → three.js + placeholder system | agreed |
 | `meta-harness.md` | META HARNESS adaptation (`paper harness` v1.2) — R1–R6 + grow-on-trigger plan | implemented |

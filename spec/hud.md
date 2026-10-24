@@ -1,6 +1,7 @@
 # Spec — HUD
 
-Status: draft
+Status: agreed — layout/behavior below is the v0.0.1 implementation
+contract; the open list covers look-and-feel refinements beyond it.
 
 ## Layout (bottom overlay bar)
 
@@ -24,10 +25,13 @@ Status: draft
 
 - **Start:** title "CAPTAIN CARGO X" + input hints; `Enter` starts.
 - **Game over:** final score + `R` restart hint.
-- Both: semi-transparent dark backdrop, shown/hidden via a `.hidden` class.
+- **Paused:** `P` label; frozen sim, HUD dimmed.
+- All: semi-transparent dark backdrop, shown/hidden via a `.hidden` class.
+- State transitions ride the bus (`state` event) — the HUD owns no game state.
 
 ## Open
 
 - [ ] Surge feedback on combo (digit bump / flash)?
 - [ ] Damage flash / vignette on life loss?
-- [ ] Exact font — match the prototype's chunky digits (asset, not CSS guess).
+- [ ] Exact font — match the prototype's chunky digits (v0.0.1: system stack).
+- [ ] High-score persistence (v0.0.1: none).

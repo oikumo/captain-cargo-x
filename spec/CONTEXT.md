@@ -7,12 +7,13 @@ a status line `draft → agreed → implemented → frozen`; rules + index live 
 
 | File | Topic | Status |
 |---|---|---|
-| `asset-pipeline.md` | Blender → glTF → three.js; placeholder factories (zero-`.glb` boot) | draft |
-| `enemies.md` | v1 roster: jets, drone?, jet-chain, lock-on beam/shell | draft |
-| `hud.md` | pure-DOM bottom bar: lives / ship / score; start + game-over overlays | draft |
+| `asset-pipeline.md` | Blender → glTF → three.js; placeholder factories (zero-`.glb` boot) | agreed |
+| `enemies.md` | v0.0.1 roster: jets, drone, lock-on gunship → shell (jet-chain: later) | agreed |
+| `hud.md` | pure-DOM bottom bar: lives / ship / score; start + game-over overlays | agreed |
 | `meta-harness.md` | paper harness process contract (R1–R6, v1.3 mechanical) | implemented |
-| `objectives.md` | shield-dome mechanics, spawn cadence | draft |
-| `scoring.md` | `Scoring` class; chain-surge rule; 6 lives | draft |
+| `objectives.md` | shield-dome mechanics, spawn cadence: 18 shield / 10 dome hits | agreed |
+| `player.md` | hover-fighter: flight, cannon, damage/i-frames (v0.0.1) | agreed |
+| `scoring.md` | `Scoring` class; chain-surge rule; 6 lives | agreed |
 
 Rules: one topic per file, kebab-case; grows only when decisions are actually
 made; *specific beats vague* — TBD beats silently invented behavior; a spec
