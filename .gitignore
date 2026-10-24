@@ -148,5 +148,8 @@ vite.config.ts.timestamp-*
 # Turbo Repo
 .turbo
 
-# Sandbox — local experiments & reference projects (agentx)
-.sandbox/
+# Sandbox — external context membrane (see .sandbox/CONTEXT.md):
+# untracked bulk (references, deep analysis, out/); only the tracked
+# entry map(s) below are committed. Each tracked entry needs its own `!`.
+.sandbox/*
+!.sandbox/CONTEXT.md
