@@ -1,14 +1,13 @@
 # src/fx — CONTEXT
 
-View layer — FX vocabulary (doc/GDD.md §11): particle bursts, blast
-spheres, lock-on beams. All pooled, preallocated; FX randomness is
-deliberately unseeded (cosmetic only — gameplay rolls stay seeded in
-src/game, methodology §16 #8).
+Moment-driven FX views (three.js only): pooled visual reactions to bus
+events + poll-only cosmetic views of model phase state.
 
 | File | Role |
 |---|---|
-| `bursts.ts` | `Bursts` — 240-slot THREE.Points, additive fade-out; `BURST_SPECS` recipe table per boom kind |
-| `blast.ts` | `Blasts` — 6 translucent spheres expanding + fading (shield break / dome destroy) |
-| `beams.ts` | `LockonBeams` — 3 green additive beams, gunship→player, telegraph-only, ~4.5 Hz flicker |
+| `booms.ts` | `Booms` — 14-slot pooled burst table (particles + blast spheres) fed by `boom` bus events; GDD §11 vocabulary |
+| `beams.ts` | `LockonBeams` — green converging telegraph beams (spec/enemies.md poll fields) |
 
-Up: `../world/CONTEXT.md` · Down: `../render/CONTEXT.md`
+No gameplay state written here; `Math.random` allowed (cosmetic, not seeded).
+
+Up: `../CONTEXT.md` · Down: `../core/bus`, `../game` (read-only types)

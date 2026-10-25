@@ -1,11 +1,11 @@
 # tests/game — CONTEXT
 
-Integration suite for the model layer: deterministic drives via injected
-clock + seeded RNG (methodology §11/§12 — never wall time).
+Vitest mirrors of `src/game` — deterministic (seeded RNG, injected dt);
+no three/DOM. See `../CONTEXT.md` for the mock-partner rules.
 
 | File | Covers |
 |---|---|
-| `scoring.test.ts` | `Scoring`: streak chain, ×4 cap, window expiry, flats, reset |
-| `run.test.ts` | `RunModel`: flight/climb/cannon, spawns+cadence, rams + i-frames, shells, lock-on cancel, dome chain, lives/gameover, determinism |
+| `run.test.ts` | `RunModel`: flight, spawning cadence, tracer hits, dome chain (18/10), lock-on → shell, lives/game-over, determinism/culls |
+| `scoring.test.ts` | `Scoring`: streak chain (×4 cap), shield-hit and flat rows, reset |
 
 Up: `../CONTEXT.md` · Down: `../../src/game/CONTEXT.md`

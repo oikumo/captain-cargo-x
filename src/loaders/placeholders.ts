@@ -1,135 +1,175 @@
 /**
- * Implements spec/asset-pipeline.md — procedural placeholder factories.
- * Origin & scale contract: nose at −Z, origin at entity center, meters;
- * radii match the hit volumes (spec/enemies.md, spec/objectives.md).
- * Every placeholder is low-poly flat-shaded primitives (boxes/spheres) —
- * v0.0.1 ships with these as the *primary* art, not a stopgap.
+ * Implements spec/asset-pipeline.md — procedural low-poly placeholder
+ * factories for every registry key. Each factory honors the origin & scale
+ * contract: nose at −Z, origin at entity center, meters, ~1:1 with the
+ * spec/enemies.md hit radii. Flat-shaded retro (doc/GDD.md art direction).
+ * Zero `.glb` required — these are the shipping v0.0.1 visuals.
  */
 import * as THREE from 'three';
-import type { ModelKey } from './registry';
 
-const SKY_METAL = 0x9aa3ad;
-const SKY_METAL_DARK = 0x7f8892;
-const PURPLE = 0x8b5cf6;
-const PURPLE_DARK = 0x6d3fd4;
-const PURPLE_WING = 0x5b3fa8;
-const CANOPY = 0xdfe9ff;
-const TAN = 0xcbb684;
-const RED = 0xc0392b;
-const WOOD = 0x9c6b3f;
+export type AssetKey =
+  | 'player'
+  | 'enemy-jet'
+  | 'enemy-drone'
+  | 'gunship'
+  | 'objective-dome'
+  | 'objective-shield'
+  | 'crate'
+  | 'tracer'
+  | 'shell';
 
-function flat(color: number): THREE.MeshLambertMaterial {
-  return new THREE.MeshLambertMaterial({ color, flatShading: true });
+export const REGISTRY_KEYS: readonly AssetKey[] = [
+  'player',
+  'enemy-jet',
+  'enemy-drone',
+  'gunship',
+  'objective-dome',
+  'objective-shield',
+  'crate',
+  'tracer',
+  'shell',
+];
+
+interface BoxSpec {
+  w: number;
+  h: number;
+  d: number;
+  x?: number;
+  y?: number;
+  z?: number;
 }
 
-function glow(color: number): THREE.MeshBasicMaterial {
-  return new THREE.MeshBasicMaterial({ color });
-}
-
-function box(
-  w: number,
-  h: number,
-  d: number,
-  mat: THREE.Material,
-  x = 0,
-  y = 0,
-  z = 0,
-): THREE.Mesh {
-  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-  mesh.position.set(x, y, z);
-  return mesh;
-}
-
-function ball(
-  r: number,
-  mat: THREE.Material,
-  x = 0,
-  y = 0,
-  z = 0,
-  widthSeg = 8,
-  heightSeg = 6,
-): THREE.Mesh {
-  const mesh = new THREE.Mesh(new THREE.SphereGeometry(r, widthSeg, heightSeg), mat);
-  mesh.position.set(x, y, z);
-  return mesh;
-}
-
-function named(mesh: THREE.Mesh, name: string): THREE.Mesh {
-  mesh.name = name;
-  return mesh;
-}
-
-/** Build the placeholder for one registry key (see MODEL_KEYS in registry). */
-export function buildPlaceholder(key: ModelKey): THREE.Object3D {
-  const g = new THREE.Group();
-  switch (key) {
-    case 'player': {
-      g.add(box(2.2, 1.3, 5.6, flat(PURPLE)));
-      g.add(box(1.3, 0.9, 1.6, flat(PURPLE_DARK), 0, -0.05, -3.3));
-      g.add(box(1.0, 0.6, 1.4, flat(CANOPY), 0, 0.85, -0.9));
-      g.add(box(7.6, 0.22, 2.0, flat(PURPLE_WING), 0, 0.05, 0.6));
-      g.add(box(0.22, 1.4, 1.2, flat(PURPLE_WING), 0, 0.95, 2.5));
-      g.add(named(ball(0.42, glow(0x4dd8ff), -0.8, 0.05, 2.9, 6, 4), 'engine'));
-      g.add(named(ball(0.42, glow(0x4dd8ff), 0.8, 0.05, 2.9, 6, 4), 'engine'));
-      break;
-    }
-    case 'enemy-jet': {
-      g.add(box(1.7, 1.0, 5.0, flat(SKY_METAL)));
-      g.add(box(5.6, 0.18, 1.5, flat(SKY_METAL_DARK), 0, 0, 0.3));
-      g.add(box(0.18, 0.9, 1.0, flat(SKY_METAL_DARK), 0, 0.6, 2.3));
-      break;
-    }
-    case 'gunship': {
-      g.add(box(1.9, 1.1, 5.2, flat(0x77808c)));
-      g.add(box(5.8, 0.2, 1.6, flat(0x5f6772), 0, 0, 0.3));
-      g.add(named(ball(0.55, glow(0x39ff6a), 0, -0.25, -2.7, 8, 6), 'core'));
-      break;
-    }
-    case 'enemy-drone': {
-      g.add(box(1.5, 1.0, 2.4, flat(TAN)));
-      g.add(box(0.28, 0.28, 4.6, flat(0xa89668), -1.3, 0.1, 0.4));
-      g.add(box(0.28, 0.28, 4.6, flat(0xa89668), 1.3, 0.1, 0.4));
-      const rotorWest = named(ball(1.15, flat(0x6b6152), -1.3, 0.75, 0.4, 8, 4), 'rotor');
-      const rotorEast = named(ball(1.15, flat(0x6b6152), 1.3, 0.75, 0.4, 8, 4), 'rotor');
-      rotorWest.scale.y = 0.12;
-      rotorEast.scale.y = 0.12;
-      g.add(rotorWest, rotorEast);
-      break;
-    }
-    case 'objective-dome': {
-      const dome = new THREE.Mesh(
-        new THREE.SphereGeometry(10, 14, 7, 0, Math.PI * 2, 0, Math.PI / 2),
-        flat(RED),
-      );
-      g.add(dome);
-      break;
-    }
-    case 'objective-shield': {
-      const shield = new THREE.Mesh(
-        new THREE.SphereGeometry(13, 14, 8),
-        new THREE.MeshBasicMaterial({
-          color: 0xff7eb0,
-          transparent: true,
-          opacity: 0.27,
-          side: THREE.DoubleSide,
-          depthWrite: false,
-        }),
-      );
-      g.add(shield);
-      break;
-    }
-    case 'crate': {
-      g.add(box(2.2, 2.2, 2.2, flat(WOOD)));
-      break;
-    }
-    case 'tracer': {
-      g.add(box(0.32, 0.32, 2.4, glow(0xffa030)));
-      break;
-    }
-    case 'shell': {
-      g.add(ball(1.5, new THREE.MeshLambertMaterial({ color: 0x8a2f2f, emissive: 0x551111 }), 0, 0, 0, 8, 6));
-      break;
-    }
+/** Compose a flat-shaded low-poly craft from axis-aligned boxes. */
+function craft(parts: Array<BoxSpec & { color: number }>): THREE.Group {
+  const group = new THREE.Group();
+  for (const p of parts) {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(p.w, p.h, p.d),
+      new THREE.MeshPhongMaterial({ color: p.color, flatShading: true, shininess: 24 }),
+    );
+    mesh.position.set(p.x ?? 0, p.y ?? 0, p.z ?? 0);
+    group.add(mesh);
   }
-  return g;
+  return group;
+}
+
+/** Purple hover-fighter (doc/GDD.md §1, §3) — hit radius ~6. */
+function player(): THREE.Object3D {
+  return craft([
+    { w: 3.0, h: 1.3, d: 9.0, color: 0x8a4ce6 }, // fuselage, nose at −Z
+    { w: 1.3, h: 0.8, d: 2.6, y: 0.8, z: -1.2, color: 0x5c2fa8 }, // canopy
+    { w: 9.6, h: 0.3, d: 3.0, y: -0.1, z: 0.7, color: 0x8a4ce6 }, // wings
+    { w: 0.3, h: 1.7, d: 1.9, y: 1.0, z: 3.3, color: 0x8a4ce6 }, // tail fin
+  ]);
+}
+
+/** Grey crossing jet (spec/enemies.md) — hit radius 7. */
+function enemyJet(): THREE.Object3D {
+  return craft([
+    { w: 2.4, h: 1.0, d: 7.0, color: 0x9aa5b1 },
+    { w: 6.4, h: 0.3, d: 2.6, z: 0.9, color: 0x8b96a2 },
+    { w: 0.25, h: 1.3, d: 1.5, y: 0.6, z: 2.9, color: 0x9aa5b1 },
+  ]);
+}
+
+/** Twin-boom patrol drone — hit radius 8, hugs the water. */
+function enemyDrone(): THREE.Object3D {
+  const group = craft([
+    { w: 0.55, h: 0.55, d: 7.6, x: -1.8, color: 0x6d7787 },
+    { w: 0.55, h: 0.55, d: 7.6, x: 1.8, color: 0x6d7787 },
+    { w: 4.2, h: 0.35, d: 0.45, z: 1.4, color: 0x5a6371 }, // cross-bar
+    { w: 1.9, h: 1.0, d: 2.7, y: 0.35, z: -0.6, color: 0x7d8796 }, // center pod
+  ]);
+  // named props — the view spins children called 'rotor' (cosmetic)
+  const rotorGeo = new THREE.BoxGeometry(2.6, 0.1, 0.35);
+  const rotorMat = new THREE.MeshPhongMaterial({ color: 0x4b5563, flatShading: true, shininess: 10 });
+  for (const side of [-1.8, 1.8]) {
+    const rotor = new THREE.Mesh(rotorGeo, rotorMat);
+    rotor.name = 'rotor';
+    rotor.position.set(side, 0.5, -2.9);
+    group.add(rotor);
+  }
+  return group;
+}
+
+/** Lock-on gunship (hp 3) — same hit radius as a jet. */
+function gunship(): THREE.Object3D {
+  return craft([
+    { w: 4.2, h: 2.2, d: 11.0, color: 0x54636f },
+    { w: 10.5, h: 0.5, d: 3.4, z: 1.2, color: 0x485662 },
+    { w: 2.0, h: 1.4, d: 3.2, x: -2.6, z: 0.6, color: 0x485662 },
+    { w: 2.0, h: 1.4, d: 3.2, x: 2.6, z: 0.6, color: 0x485662 },
+  ]);
+}
+
+/** Red hemispherical dome, r 10 (spec/objectives.md structure). */
+function objectiveDome(): THREE.Object3D {
+  return new THREE.Mesh(
+    new THREE.SphereGeometry(10, 14, 7, 0, Math.PI * 2, 0, Math.PI / 2),
+    new THREE.MeshPhongMaterial({ color: 0xd9414e, flatShading: true, shininess: 30 }),
+  );
+}
+
+/**
+ * Translucent pink/orange shield bubble, r 13. Its material is pulse-animated
+ * by the entity view (0.27 ± 0.08 sine, ~6 Hz — spec/objectives.md feedback).
+ */
+function objectiveShield(): THREE.Object3D {
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(13, 14, 9),
+    new THREE.MeshBasicMaterial({
+      color: 0xff8a5c,
+      transparent: true,
+      opacity: 0.27,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    }),
+  );
+  mesh.renderOrder = 2;
+  return mesh;
+}
+
+/** Decorative orbiting crate (2.4-ish m cube). */
+function crate(): THREE.Object3D {
+  return new THREE.Mesh(
+    new THREE.BoxGeometry(2.6, 2.6, 2.6),
+    new THREE.MeshPhongMaterial({ color: 0xa97d43, flatShading: true, shininess: 10 }),
+  );
+}
+
+/** Orange tracer bolt (spec/player.md cannon rows) — long axis Z. */
+function tracer(): THREE.Object3D {
+  return new THREE.Mesh(
+    new THREE.BoxGeometry(0.6, 0.6, 5.4),
+    new THREE.MeshBasicMaterial({ color: 0xffa640 }),
+  );
+}
+
+/** Enemy shell bolt (slow, dodgeable — spec/enemies.md). */
+function shell(): THREE.Object3D {
+  return new THREE.Mesh(
+    new THREE.SphereGeometry(2.0, 8, 6),
+    new THREE.MeshBasicMaterial({ color: 0xff4d4d }),
+  );
+}
+
+/**
+ * Placeholder factory per key.
+ * Pre: `key` ∈ REGISTRY_KEYS.
+ * Post: a prototype Object3D — callers clone per pool slot, never re-derive.
+ * Exc: unknown key throws (registry bug, not runtime state).
+ */
+export function placeholderFor(key: AssetKey): THREE.Object3D {
+  switch (key) {
+    case 'player': return player();
+    case 'enemy-jet': return enemyJet();
+    case 'enemy-drone': return enemyDrone();
+    case 'gunship': return gunship();
+    case 'objective-dome': return objectiveDome();
+    case 'objective-shield': return objectiveShield();
+    case 'crate': return crate();
+    case 'tracer': return tracer();
+    case 'shell': return shell();
+    default: throw new Error(`placeholders: unknown key '${key as string}'`);
+  }
 }

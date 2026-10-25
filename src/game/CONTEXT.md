@@ -1,21 +1,21 @@
 # src/game — CONTEXT
 
-Model layer — the engine-free simulation (methodology §5: imports
-`src/utils` only; no three/DOM/wall clock; RNG always seeded). Views poll
-these classes; they never render or mutate view state.
+Model layer — pure domain logic, no `three`/DOM/wall clock (methodology
+§5); deterministic by seed (RngBox) + injected dt. OpSpec triples (§10)
+on public methods; class comments cite the spec rows they implement.
 
 | File | Role | Tests |
 |---|---|---|
-| `events.ts` | `RunSink` + `BoomEvent` vocabulary — controller bridges them to the bus | via run tests |
-| `scoring.ts` | `Scoring` — chain surges (1.5 s window, ×4 cap), flats, reset | `tests/game/scoring.test.ts` |
-| `player.ts` | `PlayerShip` — auto-forward, steer/bank, climb band, cannon cooldown, i-frames | via run tests |
-| `tracers.ts` | `TracerPool` — 64-slot SoA ring, water/timeout expiry | via run tests |
-| `enemy-jet.ts` | `JetPool` — grey jets (SoA ring, straight paths) | via run tests |
-| `enemy-drone.ts` | `DronePool` — twin-boom drones, low + slow | via run tests |
-| `shells.ts` | `ShellPool` — post-telegraph shells, lifetime expiry | via run tests |
-| `lockon.ts` | `LockonDirector` — gunship event: telegraph → shell; kill cancels | via run tests |
-| `spawner.ts` | `SpawnDirector` — jet flights 3–5 s, drones 6–9 s | via run tests |
-| `dome.ts` | `DomeObjective` — 18-hit shield / 10-hit dome lifecycle | via run tests |
-| `run.ts` | `RunModel` — orchestrates pools, collisions, scoring, lives, events | `tests/game/run.test.ts` |
+| `run.ts` | `RunModel` — run lifecycle + pools + sweeps (tracer hits, player contacts, culls), lives/game-over | `tests/game/run.test.ts` |
+| `events.ts` | `BoomEvent`/`BoomKind`/`RunSink` — model→controller event vocabulary | (types) |
+| `player.ts` | `PlayerShip` — hover-fighter kinematics (yaw/bank/band), cannon, i-frame gate | `tests/game/run.test.ts` |
+| `enemy-jet.ts` | `JetPool` — grey jets (SoA ring, straight lines) | `tests/game/run.test.ts` |
+| `enemy-drone.ts` | `DronePool` — twin-boom patrols | `tests/game/run.test.ts` |
+| `shells.ts` | `ShellPool` — slow dodgeable shells | `tests/game/run.test.ts` |
+| `lockon.ts` | `LockonDirector` — gunship event machine (telegraph → shell); `telegraphProgress` is a view-poll getter | `tests/game/run.test.ts` |
+| `dome.ts` | `DomeObjective` — shield/dome HP chain + spawn schedule | `tests/game/run.test.ts` |
+| `spawner.ts` | `SpawnDirector` — jet flights 3–5 s / drones 6–9 s cadence | `tests/game/run.test.ts` |
+| `scoring.ts` | `Scoring` — score + streak chain (×4 cap) | `tests/game/scoring.test.ts` |
+| `tracers.ts` | `TracerPool` — player shots (ring, 64 cap) | `tests/game/run.test.ts` |
 
 Up: `../CONTEXT.md` · Down: `../../tests/game/CONTEXT.md`

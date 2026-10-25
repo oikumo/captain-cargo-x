@@ -1,86 +1,69 @@
 /**
- * FX layer — green lock-on telegraph beams (doc/GDD.md §11: green
- * multi-beam lock-on lasers). Three thin additive beams leave spread
- * origins around the gunship and converge on the player; visible only
- * during the model's `telegraph` phase (view polls, never mutates).
+ * Lock-on telegraph view — green converging beams from the gunship toward
+ * the player's lock position (spec/enemies.md: "green converging beams
+ * telegraph ~1.5 s", doc/GDD.md §4/§11). Polled model state only; beams
+ * exist during the telegraph phase and converge as its timer runs out.
  */
 import * as THREE from 'three';
+import type { RunModel } from '../game/run';
 
-const ORIGINS: ReadonlyArray<readonly [number, number, number]> = [
-  [-5, 2, 1],
-  [5, 2, 1],
-  [0, -3, -2],
-];
+const BEAM_COUNT = 4;
+const ORIGIN_OFFSET = 5.5; // beam roots around the gunship hull (m)
+const SPREAD_BASE = 1.5; // m the pattern never fully collapses to one point
+
+const UP = new THREE.Vector3(0, 1, 0); // shared read-only axis
 
 /**
- * Lock-on beam trio.
- * Pre: constructed once; `update` per frame with the gunship + player
- *      world positions and the telegraph flag from the model.
- * Post: beams stretch gunship→player with a ~4.5 Hz opacity flicker;
- *       hidden outside the telegraph window.
+ * Four additive green beams, unit-cylinder meshes stretched between points.
+ * Pre: added to one scene; sync called every frame.
+ * Post: visible only while `lockon.phase === 'telegraph'`; endpoints track
+ *       `telegraphProgress` (1 → 0). No allocation.
  */
 export class LockonBeams {
-  readonly group = new THREE.Group();
-  private readonly meshes: THREE.Mesh[] = [];
-  private readonly material: THREE.MeshBasicMaterial;
+  private readonly beams: THREE.Mesh[] = [];
   private readonly dir = new THREE.Vector3();
-  private readonly mid = new THREE.Vector3();
-  private readonly yAxis = new THREE.Vector3(0, 1, 0);
 
-  constructor() {
-    const geo = new THREE.BoxGeometry(0.16, 1, 0.16);
-    this.material = new THREE.MeshBasicMaterial({
-      color: 0x52ff7a,
+  constructor(scene: THREE.Scene) {
+    const geo = new THREE.CylinderGeometry(0.22, 0.22, 1, 5, 1, true);
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0x39ff6a,
       transparent: true,
-      opacity: 0.7,
-      depthWrite: false,
+      opacity: 0.8,
       blending: THREE.AdditiveBlending,
+      depthWrite: false,
     });
-    for (let i = 0; i < ORIGINS.length; i++) {
-      const mesh = new THREE.Mesh(geo, this.material);
+    for (let i = 0; i < BEAM_COUNT; i++) {
+      const mesh = new THREE.Mesh(geo, mat);
       mesh.visible = false;
-      this.group.add(mesh);
-      this.meshes.push(mesh);
+      scene.add(mesh);
+      this.beams.push(mesh);
     }
-    this.group.name = 'lockon-beams';
   }
 
-  /**
-   * Aim or hide the beams.
-   * Pre: `active` = telegraph phase flag; (gx..z) gunship nose, (px..z)
-   *      the player position the model locked.
-   * Post: each beam runs origin→player, scaled to length, quaternion from
-   *       the +Y axis (geometry is Y-unit); shared material flickers.
-   */
-  update(
-    active: boolean,
-    gx: number,
-    gy: number,
-    gz: number,
-    px: number,
-    py: number,
-    pz: number,
-    t: number,
-  ): void {
-    this.material.opacity = active ? 0.5 + 0.35 * Math.sin(t * 28) : 0;
-    if (!active) {
-      for (const mesh of this.meshes) mesh.visible = false;
-      return;
-    }
-    for (let i = 0; i < this.meshes.length; i++) {
-      const [ox, oy, oz] = ORIGINS[i];
-      const sx = gx + ox;
-      const sy = gy + oy;
-      const sz = gz + oz;
-      this.dir.set(px - sx, py - sy, pz - sz);
-      const len = this.dir.length() || 1;
-      this.dir.divideScalar(len);
-      this.mid.set(sx + this.dir.x * len * 0.5, sy + this.dir.y * len * 0.5, sz + this.dir.z * len * 0.5);
-      const mesh = this.meshes[i];
-      mesh.visible = true;
-      mesh.position.copy(this.mid);
-      mesh.quaternion.setFromUnitVectors(this.yAxis, this.dir);
-      mesh.scale.set(1, len, 1);
+  sync(run: RunModel): void {
+    const lk = run.lockon;
+    const on = lk.phase === 'telegraph';
+    for (const beam of this.beams) beam.visible = on;
+    if (!on) return;
+
+    const prog = lk.telegraphProgress; // 1 → 0 as the shell launch nears
+    const spread = SPREAD_BASE + 9 * prog;
+    const p = run.player;
+    for (let i = 0; i < BEAM_COUNT; i++) {
+      const ox = lk.x + (i & 1 ? ORIGIN_OFFSET : -ORIGIN_OFFSET);
+      const oz = lk.z + (i & 2 ? ORIGIN_OFFSET : -ORIGIN_OFFSET);
+      const tx = p.x + (i & 1 ? spread : -spread);
+      const ty = p.y + (i & 2 ? spread * 0.4 : -spread * 0.4);
+      const tz = p.z + (i & 2 ? spread : -spread);
+      const dx = tx - ox;
+      const dy = ty - lk.y;
+      const dz = tz - oz;
+      const len = Math.hypot(dx, dy, dz) || 1;
+      const beam = this.beams[i];
+      beam.position.set((ox + tx) / 2, (lk.y + ty) / 2, (oz + tz) / 2);
+      this.dir.set(dx / len, dy / len, dz / len);
+      beam.quaternion.setFromUnitVectors(UP, this.dir);
+      beam.scale.set(1, len, 1);
     }
   }
 }

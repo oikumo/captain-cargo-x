@@ -1,61 +1,55 @@
 /**
- * Implements spec/hud.md — pure-DOM bottom bar: lives bars (6, skewed) ·
- * purple ship icon · chunky right-aligned score digits. Updates flow
- * exclusively via bus events; the HUD holds no game state (except its own
- * DOM). No three.js in this layer.
+ * Implements spec/hud.md — the DOM HUD + overlay screens. Reacts to bus
+ * events (`score`, `lives`, `state`) only; the HUD holds no game state.
+ * Pure DOM, pointer-events none, no three (UI/HUD layer rule).
  */
+import type { AppState, GameEvents } from '../core/run-controller';
 import type { EventBus } from '../core/bus';
-import type { GameEvents } from '../core/run-controller';
+
+const SCREEN_FOR: Record<AppState, string | null> = {
+  menu: 'screen-start',
+  playing: null,
+  paused: 'screen-pause',
+  gameover: 'screen-over',
+};
 
 /**
- * The bottom HUD bar.
- * Pre: constructed once at boot with the app bus.
- * Post: repaints lives dimming (opacity 0.25) and score digits on events;
- *       `pointer-events: none` — never intercepts input.
+ * HUD + screens binder for one boot.
+ * Pre: `#hud` (lives bars / ship icon / score) and `#screens` (three
+ *      `.screen` overlays + a `.final` score span) exist in the document.
+ * Post: subscriptions live as long as the engine loop; repaints are instant
+ *       (spec: no exit anims; score jumps render nearly instantly).
  */
 export class Hud {
-  private readonly bars: HTMLElement[] = [];
-  private readonly scoreEl: HTMLElement;
+  private readonly screens: HTMLElement;
+  private lastScore = 0;
 
-  constructor(bus: EventBus<GameEvents>) {
-    const root = document.createElement('div');
-    root.id = 'hud';
+  constructor(bus: EventBus<GameEvents>, hudRoot: HTMLElement, screens: HTMLElement) {
+    this.screens = screens;
+    const scoreEl = hudRoot.querySelector<HTMLElement>('#hud-score');
+    const finalEl = screens.querySelector<HTMLElement>('.final');
+    const bars = Array.from(hudRoot.querySelectorAll<HTMLElement>('.lives .bar'));
 
-    const lives = document.createElement('div');
-    lives.className = 'lives';
-    for (let i = 0; i < 6; i++) {
-      const bar = document.createElement('span');
-      bar.className = 'bar';
-      lives.appendChild(bar);
-      this.bars.push(bar);
-    }
-
-    const ship = document.createElement('div');
-    ship.className = 'ship-icon';
-    ship.innerHTML =
-      '<svg viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">' +
-      '<path d="M32 4 L38 22 L60 34 L38 38 L36 52 L32 46 L28 52 L26 38 L4 34 L26 22 Z" ' +
-      'fill="#9b59ff" stroke="#c9b2ff" stroke-width="2" stroke-linejoin="round"/></svg>';
-
-    const score = document.createElement('div');
-    score.className = 'score';
-    this.scoreEl = document.createElement('span');
-    this.scoreEl.textContent = '0';
-    score.appendChild(this.scoreEl);
-
-    root.append(lives, ship, score);
-    document.body.appendChild(root);
-
-    bus.on('lives', (left) => this.paintLives(left));
-    bus.on('score', (total) => {
-      this.scoreEl.textContent = String(total);
+    bus.on('score', (n) => {
+      this.lastScore = n;
+      if (scoreEl) scoreEl.textContent = String(n);
+    });
+    bus.on('lives', (n) => {
+      for (let i = 0; i < bars.length; i++) {
+        bars[i].style.opacity = i < n ? '1' : '0.25'; // lost bars dim, no anim
+      }
+    });
+    bus.on('state', (s) => {
+      hudRoot.classList.toggle('dimmed', s === 'paused');
+      this.showScreen(SCREEN_FOR[s]);
+      if (s === 'gameover' && finalEl) finalEl.textContent = String(this.lastScore);
     });
   }
 
-  /** Remaining bars full opacity; lost bars dim to 0.25 (spec: no exit anim). */
-  private paintLives(left: number): void {
-    for (let i = 0; i < this.bars.length; i++) {
-      this.bars[i].classList.toggle('lost', i >= left);
-    }
+  /** Exactly one `.screen` visible per state; null hides all. */
+  private showScreen(id: string | null): void {
+    this.screens.querySelectorAll<HTMLElement>('.screen').forEach((el) => {
+      el.classList.toggle('hidden', el.id !== id);
+    });
   }
 }

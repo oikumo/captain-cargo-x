@@ -1,13 +1,11 @@
 # src/ui — CONTEXT
 
-DOM overlay layer — bus events in, elements out (spec/hud.md). No
-three.js, no game state: scores/lives arrive as events; screens flip on
-the `state` event.
+DOM overlay layer — HUD + screens per spec/hud.md. Reacts to bus events
+only (`score`, `lives`, `state`); holds no game state; **no `three`**;
+pointer-events none.
 
 | File | Role |
 |---|---|
-| `hud.ts` | `Hud` — bottom bar: 6 skewed lives bars · purple ship SVG · chunky score digits |
-| `screens.ts` | `Screens` — start / paused / game-over overlays (`.hidden` toggling, final-score stash) |
-| `styles.css` | HUD + screen styling (system chunky font stack — exact font is a spec/hud.md open item) |
+| `hud.ts` | `Hud` — binds `#hud` (6 lives bars / ship icon / score) + `#screens` (start/gameover/paused overlays, `.hidden` toggles); repaint is event-only |
 
-Up: `../render/CONTEXT.md` · Down: `../../tests/CONTEXT.md`
+Up: `../CONTEXT.md` · Down: `../core/bus` (events only)

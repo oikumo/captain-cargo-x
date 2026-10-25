@@ -9,18 +9,151 @@
       body {
         margin: 0;
         height: 100%;
-        background: #8fc3ea;
+        background: #0b1d33;
         overflow: hidden;
+        user-select: none;
       }
       #game {
         display: block;
         width: 100%;
         height: 100%;
       }
+
+      /* -- HUD (spec/hud.md): fixed bottom bar, three zones, no pointer events -- */
+      #hud {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 12px;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px;
+        pointer-events: none;
+        transition: opacity 0.15s ease-out;
+      }
+      #hud.dimmed {
+        opacity: 0.45;
+      }
+      .lives {
+        display: flex;
+        gap: 7px;
+      }
+      .lives .bar {
+        width: 14px;
+        height: 34px;
+        border-radius: 5px;
+        background: #b78cff;
+        transform: skewX(-9deg);
+        opacity: 1;
+      }
+      #ship-icon {
+        filter: drop-shadow(0 0 6px rgba(160, 107, 255, 0.65));
+      }
+      #hud-score {
+        font-family: 'Arial Black', 'Segoe UI', system-ui, sans-serif;
+        font-weight: 900;
+        font-size: 44px;
+        line-height: 1;
+        letter-spacing: 4px;
+        color: #ffffff;
+        text-shadow:
+          0 0 8px rgba(0, 0, 0, 0.9),
+          0 2px 2px rgba(0, 0, 0, 0.8);
+      }
+
+      /* -- Screens (spec/hud.md): semi-transparent backdrops, .hidden toggles -- */
+      #screens {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        pointer-events: none;
+      }
+      .screen {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        background: rgba(5, 12, 24, 0.62);
+      }
+      .screen.hidden {
+        display: none;
+      }
+      .title {
+        font-family: 'Arial Black', 'Segoe UI', system-ui, sans-serif;
+        font-weight: 900;
+        font-size: 56px;
+        letter-spacing: 10px;
+        color: #b78cff;
+        text-shadow:
+          0 0 18px rgba(160, 107, 255, 0.55),
+          0 3px 0 rgba(10, 5, 30, 0.9);
+        text-align: center;
+      }
+      .subtitle {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        font-size: 15px;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, 0.78);
+        text-align: center;
+        line-height: 1.7;
+      }
+      .final {
+        font-family: 'Arial Black', 'Segoe UI', system-ui, sans-serif;
+        font-weight: 900;
+        font-size: 44px;
+        letter-spacing: 4px;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      }
+      .key {
+        color: #b78cff;
+        font-weight: 700;
+      }
     </style>
   </head>
   <body>
     <canvas id="game"></canvas>
+
+    <div id="hud">
+      <div class="lives" aria-label="lives">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span
+        ><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+      </div>
+      <svg id="ship-icon" width="40" height="48" viewBox="0 0 40 48" aria-label="ship">
+        <path
+          fill="#a06bff"
+          d="M20 2 L23 20 L37 34 L37 37 L23 32 L23 43 L27 45 L27 46 L20 44 L13 46 L13 45 L17 43 L17 32 L3 37 L3 34 L17 20 Z"
+        />
+      </svg>
+      <div class="score" id="hud-score">0</div>
+    </div>
+
+    <div id="screens">
+      <div id="screen-start" class="screen">
+        <div class="title">CAPTAIN CARGO X</div>
+        <div class="subtitle">
+          <span class="key">ENTER</span> — start<br />
+          <span class="key">←→↑↓ / WASD</span> — fly &nbsp;·&nbsp;
+          <span class="key">SPACE</span> — fire &nbsp;·&nbsp;
+          <span class="key">P</span> — pause &nbsp;·&nbsp; <span class="key">R</span> — restart
+        </div>
+      </div>
+      <div id="screen-over" class="screen hidden">
+        <div class="title">GAME OVER</div>
+        <div class="final">0</div>
+        <div class="subtitle"><span class="key">R</span> — fly again</div>
+      </div>
+      <div id="screen-pause" class="screen hidden">
+        <div class="title">PAUSED</div>
+        <div class="subtitle"><span class="key">P</span> — resume &nbsp;·&nbsp; <span class="key">R</span> — restart</div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

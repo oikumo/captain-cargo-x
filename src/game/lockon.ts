@@ -121,4 +121,11 @@ export class LockonDirector {
   get active(): boolean {
     return this.phase !== 'idle';
   }
+
+  /** Telegraph fraction 1 → 0 (beams converge); 0 outside telegraph. */
+  get telegraphProgress(): number {
+    return this.phase === 'telegraph'
+      ? Math.max(0, this.timerS / LOCKON_TELEGRAPH_S)
+      : 0;
+  }
 }

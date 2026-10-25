@@ -1,57 +1,35 @@
 /**
- * Implements spec/asset-pipeline.md — async per-key model registry with
- * procedural placeholder fallback. Hard requirement: the game boots with
- * zero `.glb` files; dropping `public/assets/models/<key>.glb` in is a
- * pure upgrade (same scale & origin contract, no gameplay-code changes).
- * Gateway layer: the only place assets are fetched (methodology §7).
+ * Implements spec/asset-pipeline.md — the glTF registry with placeholder
+ * fallback (the v0.0.1 shipping route). Every key tries its
+ * `assets/models/<key>.glb` first; a missing/unloadable file falls back to
+ * the procedural placeholder factory with the same origin & scale contract,
+ * one-line console info per key. The game must run with zero exported files
+ * (hard requirement) and upgrading an asset stays drop-in here only.
  */
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { buildPlaceholder } from './placeholders';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { placeholderFor, REGISTRY_KEYS, type AssetKey } from './placeholders';
 
-export const MODEL_KEYS = [
-  'player',
-  'enemy-jet',
-  'enemy-drone',
-  'gunship',
-  'objective-dome',
-  'objective-shield',
-  'crate',
-  'tracer',
-  'shell',
-] as const;
-
-export type ModelKey = (typeof MODEL_KEYS)[number];
+export type AssetRegistry = Map<AssetKey, THREE.Object3D>;
 
 /**
- * Resolve one model: try `assets/models/<key>.glb`, fall back to the
- * procedural placeholder (one console info per key, never warning spam).
- * Pre: key ∈ MODEL_KEYS.
- * Post: resolves with a template Object3D (caller clones per pool slot).
+ * Load every registry key's prototype.
+ * Pre: once per boot, before views are built (views clone per pool slot).
+ * Post: map with an entry per REGISTRY_KEYS — network miss ⇒ placeholder.
+ * Exc: never rejects (each key resolves on its own; boot continues zero-.glb).
  */
-export async function loadModel(key: ModelKey): Promise<THREE.Object3D> {
-  try {
-    const gltf = await new GLTFLoader().loadAsync(`assets/models/${key}.glb`);
-    return gltf.scene;
-  } catch {
-    console.info(
-      `[assets] ${key}.glb absent — procedural placeholder in play ` +
-        `(drop public/assets/models/${key}.glb to upgrade)`,
-    );
-    return buildPlaceholder(key);
-  }
-}
-
-/**
- * Resolve every registry key in parallel.
- * Post: Map with one template per key — boot awaits this once.
- */
-export async function loadAll(): Promise<Map<ModelKey, THREE.Object3D>> {
-  const templates = new Map<ModelKey, THREE.Object3D>();
-  await Promise.all(
-    MODEL_KEYS.map(async (key) => {
-      templates.set(key, await loadModel(key));
+export async function loadRegistry(): Promise<AssetRegistry> {
+  const loader = new GLTFLoader();
+  const entries = await Promise.all(
+    REGISTRY_KEYS.map(async (key): Promise<[AssetKey, THREE.Object3D]> => {
+      try {
+        const gltf = await loader.loadAsync(`assets/models/${key}.glb`);
+        return [key, gltf.scene];
+      } catch {
+        console.info(`[assets] '${key}': no .glb — procedural placeholder (spec/asset-pipeline.md)`);
+        return [key, placeholderFor(key)];
+      }
     }),
   );
-  return templates;
+  return new Map(entries);
 }

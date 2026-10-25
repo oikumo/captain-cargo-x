@@ -1,10 +1,14 @@
 # src/render — CONTEXT
 
-View layer — three.js scene assembly. Polls the model every frame and
-listens to bus booms for FX; never mutates game state (methodology §5).
+Scene-assembly view layer (three.js only here): pooled entity renders +
+the renderer/camera harness. Views **poll** RunModel state every frame
+(read-only) — gameplay decisions never live here.
 
 | File | Role |
 |---|---|
-| `view.ts` | `GameView` — scene/camera, chase cam with bank roll, pooled entity meshes cloned from loader templates, dome shield pulse + crate orbit, muzzle/i-frame feedback, FX + ocean stepping, `render()` |
+| `scene.ts` | `SceneView` — WebGLRenderer + lights + damped chase camera (`follow`), `render()` per frame |
+| `entities.ts` | `EntityViews` — one preallocated mesh per pool slot (jets 16 / drones 4 / shells 6 / tracers 64) + player/dome/gunship/crates; cosmetic feedback loops (muzzle, blink, thruster, shield pulse) |
 
-Up: `../fx/CONTEXT.md` · Down: `../ui/CONTEXT.md`
+Meshes are registry prototypes cloned once (spec/asset-pipeline.md keys).
+
+Up: `../CONTEXT.md` · Down: `../loaders` (prototypes), `../game` (read-only)

@@ -10,7 +10,7 @@ state; a view layer renders and polls.
 | `game/` | model | run orchestration: player, pools, spawner, dome, scoring, lives — no `three` | alive |
 | `utils/` | model | pure helpers: time, math, seeded RNG | alive |
 | `core/` | controller | orchestration: loop, bus, input map, state machine — no DOM | alive |
-| `render/` | view | `GameView`: scene, pooled meshes, chase camera | alive |
+| `render/` | view | `SceneView` (lights + chase cam) + `EntityViews` (pooled meshes) | alive |
 | `world/` | view | procedural ocean + sky rig | alive |
 | `fx/` | view | bursts, blasts, lock-on beams (pooled) | alive |
 | `ui/` | DOM HUD | bus-event overlay (lives/score/screens); no `three` | alive |
@@ -20,4 +20,4 @@ state; a view layer renders and polls.
 `three` permitted only in `main.ts`, `render/`, `world/`, `fx/`, `loaders/`.
 A folder lands with its `CONTEXT.md` (AGENTS.md §Navigation, R6).
 
-Up: `../spec/CONTEXT.md` · Down: `game/`, `core/`, `render/`, `ui/`
+Up: `../spec/CONTEXT.md` · Down: `game/`, `core/`, `utils/`, `render/`, `world/`, `fx/`, `ui/`, `loaders/`
