@@ -17,6 +17,7 @@ rows keep a commit ref + spec pointer (both harness-checked, R1).
 | 2026-10-24 | [x] | v0.0.1 threats slice — grey jets + twin-boom drone + lock-on gunship→shell, pooled sim, sphere collisions, spawns per cadence | `spec/enemies.md` | 70ba3e1 + 4ef7635 · tests/game/run.test.ts threats block green |
 | 2026-10-24 | [x] | v0.0.1 objective + score slice — shield dome (18 shield / 10 dome hits), chain surges, 6 lives, gameover | `spec/objectives.md` · `spec/scoring.md` | 70ba3e1 + 4ef7635 · dome/scoring/lives blocks green |
 | 2026-10-24 | [x] | v0.0.1 view slice — procedural placeholder meshes (zero-`.glb`): ocean/sky world, pooled entity renders, FX bursts/beams, DOM HUD + screens, main boot | `spec/hud.md` · `spec/asset-pipeline.md` | 046462b + f3df919 (feat(render)+test(core)) · dev+build boot, harness green |
+| 2026-10-24 | [x] | View-slice rework: integrated SceneView/EntityViews pools + Booms table replacing the 046462b file set (same spec facets; registry decision layer + pool-sync under vitest) | `spec/hud.md` · `spec/asset-pipeline.md` | 51c0760 feat(view) — supersedes 046462b · harness green |
 
 Frame budget (methodology §4, design-phase line): ocean CPU waves 7.7 k verts +
 ~150 pooled mesh syncs + < 2.2 k sphere distance tests ⇒ ≤ 1.5 ms of the
